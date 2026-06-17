@@ -1,0 +1,118 @@
+// prisma/schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String       @id @default(uuid())
+  email         String?      @unique
+  password_hash String?
+  nickname      String
+  profile       UserProfile?
+  mealPlans     MealPlan[]
+  feedbacks     Feedback[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model UserProfile {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id])
+  weeklyBudget      Int
+  cookingLevel      String
+  maxCookingTime    Int
+  goal              String
+  preferredFoods    String?
+  dislikedFoods     String?
+  allergies         String?
+  cookingTools      String?
+  basicSeasonings   String?
+  mealSchedule      String?
+  usualStores       String?
+  requireFeedback   Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model MealPlan {
+  id                       String          @id @default(uuid())
+  userId                   String
+  user                     User            @relation(fields: [userId], references: [id])
+  startDate                DateTime
+  endDate                  DateTime
+  budget                   Int
+  estimatedCost            Int
+  estimatedSavings         Int
+  inventoryUtilizationRate Float
+  items                    MealPlanItem[]
+  shoppingLists            ShoppingList[]
+  createdAt                DateTime        @default(now())
+}
+
+model MealPlanItem {
+  id                        String       @id @default(uuid())
+  planId                    String
+  plan                      MealPlan     @relation(fields: [planId], references: [id])
+  date                      DateTime
+  mealType                  String
+  menuName                  String
+  ingredientsUsedJson       String
+  additionalIngredientsJson String
+  prepInstructions          String?
+  estimatedCost             Int
+  cookingTime               Int
+  difficulty                String
+  recipeText                String
+  tastePoint                String?
+  reason                    String?
+  feedbacks                 Feedback[]
+  createdAt                 DateTime     @default(now())
+}
+
+model ShoppingList {
+  id                 String             @id @default(uuid())
+  planId             String
+  plan               MealPlan           @relation(fields: [planId], references: [id])
+  totalEstimatedCost Int
+  items              ShoppingListItem[]
+  createdAt          DateTime           @default(now())
+}
+
+model ShoppingListItem {
+  id                     String       @id @default(uuid())
+  shoppingListId         String
+  shoppingList           ShoppingList @relation(fields: [shoppingListId], references: [id])
+  ingredientName         String
+  quantity               Float
+  unit                   String
+  estimatedPrice         Int
+  priority               String
+  usedForMenu            String
+  recommendedProductName String?
+  productUrl             String?
+  affiliateUrl           String?
+  isAffiliate            Boolean      @default(false)
+  disclosureText         String?
+  createdAt              DateTime     @default(now())
+}
+
+model Feedback {
+  id               String       @id @default(uuid())
+  userId           String
+  user             User         @relation(fields: [userId], references: [id])
+  mealPlanItemId   String
+  mealPlanItem     MealPlanItem @relation(fields: [mealPlanItemId], references: [id])
+  ateStatus        String
+  tasteRating      Int?
+  difficultyRating Int?
+  actualCost       Int?
+  comment          String?
+  wantAgain        Boolean?
+  createdAt        DateTime     @default(now())
+}
