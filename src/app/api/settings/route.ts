@@ -1,18 +1,22 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getSession } from '@/lib/auth';
 
 export async function GET() {
   try {
-    let user = await prisma.user.findFirst({ include: { profile: true } });
-    if (!user) {
-      user = await prisma.user.create({ data: { nickname: '자취생' } });
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    let profile = user.profile;
+    let profile = await prisma.userProfile.findUnique({
+      where: { userId: session.userId }
+    });
+    
     if (!profile) {
       profile = await prisma.userProfile.create({
         data: {
-          userId: user.id,
+          userId: session.userId,
           weeklyBudget: 50000,
           cookingLevel: '초보',
           maxCookingTime: 15,
@@ -31,15 +35,18 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await req.json();
-    const user = await prisma.user.findFirst();
-    if (!user) throw new Error("User not found");
 
     const profile = await prisma.userProfile.upsert({
-      where: { userId: user.id },
+      where: { userId: session.userId },
       update: { requireFeedback: body.requireFeedback },
       create: {
-        userId: user.id,
+        userId: session.userId,
         weeklyBudget: 50000,
         cookingLevel: '초보',
         maxCookingTime: 15,
