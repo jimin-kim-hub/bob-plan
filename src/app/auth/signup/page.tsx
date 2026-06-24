@@ -22,8 +22,7 @@ export default function SignupPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      router.push("/");
-      router.refresh();
+      window.location.href = "/";
     } catch (e: any) {
       setError(e.message);
     }

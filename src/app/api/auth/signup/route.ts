@@ -6,7 +6,8 @@ import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
   try {
-    const { email, password, nickname } = await req.json();
+    const { email: rawEmail, password, nickname } = await req.json();
+    const email = rawEmail?.trim();
 
     if (!email || !password || !nickname) {
       return NextResponse.json({ error: '모든 필드를 입력해주세요.' }, { status: 400 });
