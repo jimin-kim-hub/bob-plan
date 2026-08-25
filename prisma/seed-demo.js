@@ -68,7 +68,7 @@ function buildPrompt(input) {
 
 async function generatePlanJson(apiKey) {
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-flash-lite-latest' });
   const result = await model.generateContent(buildPrompt(DEMO_INPUT));
   let text = result.response.text();
   text = text.replace(/^```json/g, '').replace(/```$/g, '').trim();

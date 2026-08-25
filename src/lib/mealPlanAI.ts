@@ -175,8 +175,11 @@ export async function generateWithValidation<T>(opts: {
   validate: (data: T) => ValidationIssue[];
 }): Promise<GenerateWithValidationResult<T>> {
   const { apiKey, buildPrompt, schema, validate } = opts;
+  // gemini-flash-latest는 큰 요청(여러 날치 식단)에서 503(과부하)이 잦고 응답도 느려
+  // Vercel의 60초 함수 제한에 걸릴 위험이 컸다. gemini-flash-lite-latest가 같은 요청을
+  // 훨씬 빠르고 안정적으로 처리하는 것을 확인하고 교체했다.
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-flash-lite-latest' });
 
   let correction: string | undefined;
   let lastError: unknown = null;
