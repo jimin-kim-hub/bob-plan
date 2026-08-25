@@ -1,14 +1,17 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
-import { ChefHat, PiggyBank, Calendar, ShoppingCart, Award, Clock, ArrowLeft } from 'lucide-react';
+import { ChefHat, PiggyBank, Calendar, ShoppingCart, Award, Clock, ArrowLeft, FlaskConical } from 'lucide-react';
 import MealCard from './MealCard';
 import { getSession } from '@/lib/auth';
 import UserMenu from '@/components/UserMenu';
 
 export default async function PlanResultPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  
+
+  const session = await getSession();
+  if (!session) redirect('/auth/login');
+
   const plan = await prisma.mealPlan.findUnique({
     where: { id: resolvedParams.id },
     include: {
@@ -21,12 +24,12 @@ export default async function PlanResultPage({ params }: { params: Promise<{ id:
 
   if (!plan) return notFound();
 
-  const session = await getSession();
-  if (!session) return notFound(); // Or redirect to login
+  // 소유권 확인: 로그인한 다른 사용자가 URL만 알고 접근하는 것을 막는다.
+  if (plan.userId !== session.userId) return notFound();
 
-  const user = await prisma.user.findUnique({ 
+  const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    include: { profile: true } 
+    include: { profile: true }
   });
   const requireFeedback = user?.profile?.requireFeedback ?? true;
 
@@ -57,7 +60,14 @@ export default async function PlanResultPage({ params }: { params: Promise<{ id:
       </header>
 
       <main className="max-w-4xl mx-auto px-6 pt-8 space-y-10">
-        
+
+        {plan.isMock && (
+          <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 text-sm font-medium px-4 py-3 rounded-2xl">
+            <FlaskConical className="w-4 h-4 flex-shrink-0" />
+            이 식단은 AI API 키가 설정되지 않아 생성된 샘플(목업) 데이터입니다. 실제 서비스에서는 Gemini가 실시간으로 생성합니다.
+          </div>
+        )}
+
         {/* 주간 리포트 / 요약 */}
         <section className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-orange-50 rounded-bl-[100px] -z-10" />

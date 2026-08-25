@@ -339,12 +339,24 @@ export default function NewPlanPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">비선호 음식 / 알레르기</label>
-              <input 
+              <label className="block text-sm font-semibold text-slate-700 mb-2">비선호 음식</label>
+              <input
                 type="text" name="dislikedFoods" value={formData.dislikedFoods} onChange={handleInputChange}
                 className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all"
-                placeholder="예) 버섯 싫어함, 갑각류 알레르기"
+                placeholder="예) 버섯, 오이"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                알레르기 <span className="text-red-500 font-normal">(있다면 반드시 입력해주세요)</span>
+              </label>
+              <input
+                type="text" name="allergies" value={formData.allergies} onChange={handleInputChange}
+                className="w-full p-3 bg-slate-50 border border-red-200 rounded-xl focus:ring-2 focus:ring-red-400 outline-none transition-all"
+                placeholder="예) 갑각류, 땅콩, 우유"
+              />
+              <p className="text-xs text-slate-500 mt-2">여기에 적은 재료는 AI가 식단·장보기 목록에서 자동으로 제외하고 검증합니다.</p>
             </div>
           </section>
 

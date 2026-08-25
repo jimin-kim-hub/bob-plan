@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { verifyToken } from '@/lib/jwt';
 
-export function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value;
 
-  if (!token) {
+  if (!token || !(await verifyToken(token))) {
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 

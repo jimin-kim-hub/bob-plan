@@ -44,6 +44,35 @@ export default function Home() {
           </Link>
         </section>
 
+        <section className="px-6 pb-16 max-w-3xl mx-auto">
+          <p className="text-center text-sm font-semibold text-slate-400 mb-4">로그인 없이 미리 보는 결과 화면 예시</p>
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-3">
+                <span className="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm font-bold">1일차 저녁</span>
+                <h3 className="text-xl font-bold text-slate-800">참치김치비빔밥</h3>
+              </div>
+              <div className="flex items-center gap-4 text-sm font-medium text-slate-600">
+                <span>조리 5분</span>
+                <span className="text-orange-600">1,500원</span>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="flex flex-wrap gap-2 text-sm">
+                <span className="bg-green-100 text-green-800 px-2 py-1 rounded-lg">보유: 김치</span>
+                <span className="bg-green-100 text-green-800 px-2 py-1 rounded-lg">보유: 참치캔</span>
+                <span className="bg-green-100 text-green-800 px-2 py-1 rounded-lg">보유: 계란</span>
+                <span className="bg-red-100 text-red-800 px-2 py-1 rounded-lg">필요: 햇반</span>
+              </div>
+              <div className="bg-orange-50 text-orange-800 p-4 rounded-xl text-sm leading-relaxed">
+                <span className="font-bold block mb-1">😋 맛 포인트</span>
+                참기름 한 방울과 반숙 계란 프라이가 핵심입니다.
+              </div>
+              <p className="text-sm text-slate-600 italic">&quot; 냉장고에 있는 김치와 참치캔을 최우선으로 소진하기 위해 구성했습니다. &quot;</p>
+            </div>
+          </div>
+        </section>
+
         <section className="bg-white py-16 px-6 border-t border-slate-200">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl font-bold text-center text-slate-800 mb-12">밥계획이 해결해드려요</h2>

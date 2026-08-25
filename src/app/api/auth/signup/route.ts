@@ -52,6 +52,6 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error("Signup Error:", error);
-    return NextResponse.json({ error: `오류 상세 내용: ${error.message || String(error)}` }, { status: 500 });
+    return NextResponse.json({ error: '회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' }, { status: 500 });
   }
 }

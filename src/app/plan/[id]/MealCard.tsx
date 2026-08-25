@@ -2,12 +2,22 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Clock, MessageSquare, Star, CheckCircle, RefreshCw } from "lucide-react";
+import { Clock, MessageSquare, Star, CheckCircle, RefreshCw, AlertTriangle, FlaskConical } from "lucide-react";
+
+function safeParse<T>(json: string | null | undefined, fallback: T): T {
+  if (!json) return fallback;
+  try {
+    const parsed = JSON.parse(json);
+    return parsed ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 export default function MealCard({ item, requireFeedback }: { item: any, requireFeedback: boolean }) {
-  const recipe = JSON.parse(item.recipeText);
-  const usedIngredients = JSON.parse(item.ingredientsUsedJson);
-  const addIngredients = JSON.parse(item.additionalIngredientsJson);
+  const recipe = safeParse(item.recipeText, { steps: [], tips: [] } as { steps: string[]; tips: string[] });
+  const usedIngredients = safeParse<string[]>(item.ingredientsUsedJson, []);
+  const addIngredients = safeParse<string[]>(item.additionalIngredientsJson, []);
 
   const router = useRouter();
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
@@ -113,6 +123,23 @@ export default function MealCard({ item, requireFeedback }: { item: any, require
       {/* Content */}
       <div className="p-6 grid md:grid-cols-2 gap-8">
         <div className="space-y-6">
+          {(item.validationNote || item.isMock) && (
+            <div className="space-y-2">
+              {item.validationNote && (
+                <div className="flex items-start gap-2 bg-amber-50 text-amber-800 p-3 rounded-xl text-xs font-medium">
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <span>AI 자동 검증 결과: {item.validationNote}</span>
+                </div>
+              )}
+              {item.isMock && (
+                <div className="flex items-center gap-2 bg-slate-100 text-slate-600 p-2 rounded-xl text-xs font-medium">
+                  <FlaskConical className="w-3.5 h-3.5 flex-shrink-0" />
+                  샘플(목업) 데이터
+                </div>
+              )}
+            </div>
+          )}
+
           {item.prepInstructions && (
             <div className="bg-blue-50 text-blue-800 p-3 rounded-xl text-sm font-medium">
               💡 사전 준비: {item.prepInstructions}

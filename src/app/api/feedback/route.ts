@@ -4,11 +4,13 @@ import { getSession } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
+    }
+
     const body = await req.json();
     const { mealPlanItemId, ateStatus, tasteRating, difficultyRating, actualCost, wantAgain } = body;
-    
-    const session = await getSession();
-    if (!session) throw new Error("Unauthorized");
 
     const feedback = await prisma.feedback.create({
       data: {
