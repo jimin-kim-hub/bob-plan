@@ -72,6 +72,9 @@ export async function POST(req: Request) {
       }
     }
 
+    // 이 메뉴에 이미 남겨진 피드백은 교체될 메뉴에 더 이상 유효하지 않으므로 함께 정리한다.
+    // (Feedback -> MealPlanItem 참조가 남아있으면 삭제 시 FK 제약 위반으로 실패한다.)
+    await prisma.feedback.deleteMany({ where: { mealPlanItemId } });
     await prisma.mealPlanItem.delete({ where: { id: mealPlanItemId } });
 
     const newItem = await prisma.mealPlanItem.create({
