@@ -51,6 +51,7 @@ model MealPlan {
   estimatedSavings         Int
   inventoryUtilizationRate Float
   isMock                   Boolean         @default(false)
+  isFavorite               Boolean         @default(false)
   validationSummary        String?
   items                    MealPlanItem[]
   shoppingLists            ShoppingList[]
@@ -60,7 +61,7 @@ model MealPlan {
 model MealPlanItem {
   id                        String       @id @default(uuid())
   planId                    String
-  plan                      MealPlan     @relation(fields: [planId], references: [id])
+  plan                      MealPlan     @relation(fields: [planId], references: [id], onDelete: Cascade)
   date                      DateTime
   mealType                  String
   menuName                  String
@@ -82,7 +83,7 @@ model MealPlanItem {
 model ShoppingList {
   id                 String             @id @default(uuid())
   planId             String
-  plan               MealPlan           @relation(fields: [planId], references: [id])
+  plan               MealPlan           @relation(fields: [planId], references: [id], onDelete: Cascade)
   totalEstimatedCost Int
   items              ShoppingListItem[]
   createdAt          DateTime           @default(now())
@@ -91,7 +92,7 @@ model ShoppingList {
 model ShoppingListItem {
   id                     String       @id @default(uuid())
   shoppingListId         String
-  shoppingList           ShoppingList @relation(fields: [shoppingListId], references: [id])
+  shoppingList           ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
   ingredientName         String
   quantity               Float
   unit                   String
@@ -111,7 +112,7 @@ model Feedback {
   userId           String
   user             User         @relation(fields: [userId], references: [id])
   mealPlanItemId   String
-  mealPlanItem     MealPlanItem @relation(fields: [mealPlanItemId], references: [id])
+  mealPlanItem     MealPlanItem @relation(fields: [mealPlanItemId], references: [id], onDelete: Cascade)
   ateStatus        String
   tasteRating      Int?
   difficultyRating Int?

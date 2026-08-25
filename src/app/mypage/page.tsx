@@ -2,8 +2,9 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
-import { ChefHat, ArrowLeft, PiggyBank, CalendarCheck, LogOut, ArrowRight } from "lucide-react";
+import { ChefHat, ArrowLeft, PiggyBank, CalendarCheck } from "lucide-react";
 import UserMenu from "@/components/UserMenu";
+import PlanHistoryItem from "./PlanHistoryItem";
 
 export default async function MyPage() {
   const session = await getSession();
@@ -15,7 +16,7 @@ export default async function MyPage() {
     where: { id: session.userId },
     include: {
       mealPlans: {
-        orderBy: { createdAt: 'desc' }
+        orderBy: [{ isFavorite: 'desc' }, { createdAt: 'desc' }]
       }
     }
   });
@@ -82,19 +83,16 @@ export default async function MyPage() {
               </div>
             ) : (
               user.mealPlans.map((plan) => (
-                <Link key={plan.id} href={`/plan/${plan.id}`}>
-                  <div className="bg-white p-5 rounded-2xl border border-slate-100 hover:border-orange-300 hover:shadow-md transition-all flex items-center justify-between group">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-500 mb-1">
-                        {plan.createdAt.toLocaleDateString()} 생성
-                      </p>
-                      <p className="font-bold text-slate-800">
-                        {plan.budget.toLocaleString()}원 예산 식단 (예상 지출 {plan.estimatedCost.toLocaleString()}원)
-                      </p>
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-orange-500 transition-colors" />
-                  </div>
-                </Link>
+                <PlanHistoryItem
+                  key={plan.id}
+                  plan={{
+                    id: plan.id,
+                    createdAtLabel: plan.createdAt.toLocaleDateString(),
+                    budget: plan.budget,
+                    estimatedCost: plan.estimatedCost,
+                    isFavorite: plan.isFavorite,
+                  }}
+                />
               ))
             )}
           </div>
