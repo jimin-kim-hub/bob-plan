@@ -28,6 +28,7 @@ export default function NewPlanPage() {
     goal: "절약",
     cuisineStyle: "다양하게 섞어서",
     preferences: "",
+    wantedIngredients: "",
     dislikedFoods: "",
     allergies: "",
   });
@@ -257,8 +258,8 @@ export default function NewPlanPage() {
                     <div key={index} className="flex items-center gap-2 bg-white border border-orange-200 text-orange-800 px-3 py-1.5 rounded-lg text-sm shadow-sm">
                       <span className="font-semibold">{item.name}</span>
                       {item.expiry && <span className="text-orange-600 text-xs">({item.expiry})</span>}
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => setInventoryItems(inventoryItems.filter((_, i) => i !== index))}
                         className="text-orange-300 hover:text-orange-600 ml-1 font-bold"
                       >
@@ -268,6 +269,16 @@ export default function NewPlanPage() {
                   ))}
                 </div>
               )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">먹고 싶은 / 새로 사고 싶은 재료</label>
+              <input
+                type="text" name="wantedIngredients" value={formData.wantedIngredients} onChange={handleInputChange}
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+                placeholder="예) 돼지고기, 새우, 아보카도"
+              />
+              <p className="text-xs text-slate-500 mt-2">보유 재료를 아껴쓰기만 하지 않고, 여기 적은 재료를 새로 사서라도 최소 한 끼 이상 반영해드려요.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
