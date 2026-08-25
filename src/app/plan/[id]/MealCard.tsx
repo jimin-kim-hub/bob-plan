@@ -14,6 +14,9 @@ function safeParse<T>(json: string | null | undefined, fallback: T): T {
   }
 }
 
+const SUBSTITUTE_REASONS = ["너무 귀찮아요", "더 저렴하게", "같은 재료로 다른 메뉴", "단백질 높게", "매운맛 줄이기"];
+const CUISINE_STYLES = ["상관없음", "한식", "양식", "중식", "일식"];
+
 export default function MealCard({ item, requireFeedback }: { item: any, requireFeedback: boolean }) {
   const recipe = safeParse(item.recipeText, { steps: [], tips: [] } as { steps: string[]; tips: string[] });
   const usedIngredients = safeParse<string[]>(item.ingredientsUsedJson, []);
@@ -25,6 +28,8 @@ export default function MealCard({ item, requireFeedback }: { item: any, require
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubstituting, setIsSubstituting] = useState(false);
   const [showSubMenu, setShowSubMenu] = useState(false);
+  const [substituteReason, setSubstituteReason] = useState(SUBSTITUTE_REASONS[0]);
+  const [substituteCuisine, setSubstituteCuisine] = useState(CUISINE_STYLES[0]);
   const [feedback, setFeedback] = useState({
     ateStatus: '먹음',
     tasteRating: 5,
@@ -56,7 +61,7 @@ export default function MealCard({ item, requireFeedback }: { item: any, require
     setIsSubmitting(false);
   };
 
-  const handleSubstitute = async (reason: string) => {
+  const handleSubstitute = async () => {
     setIsSubstituting(true);
     setShowSubMenu(false);
     try {
@@ -65,7 +70,8 @@ export default function MealCard({ item, requireFeedback }: { item: any, require
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           mealPlanItemId: item.id,
-          reason
+          reason: substituteReason,
+          cuisineStyle: substituteCuisine
         })
       });
       if (!res.ok) {
@@ -108,17 +114,37 @@ export default function MealCard({ item, requireFeedback }: { item: any, require
             </button>
             
             {showSubMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-2 animate-in fade-in slide-in-from-top-2">
-                <div className="px-3 py-1 text-xs font-bold text-slate-400 border-b border-slate-100 mb-1">교체 사유 선택</div>
-                {["너무 귀찮아요", "더 저렴하게", "같은 재료로 다른 메뉴", "단백질 높게", "매운맛 줄이기"].map(reason => (
-                  <button 
-                    key={reason}
-                    onClick={() => handleSubstitute(reason)}
-                    className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-colors font-medium"
+              <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-xl shadow-lg z-20 p-3 space-y-3 animate-in fade-in slide-in-from-top-2">
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1">교체 사유</label>
+                  <select
+                    value={substituteReason}
+                    onChange={(e) => setSubstituteReason(e.target.value)}
+                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 outline-none focus:ring-2 focus:ring-orange-500"
                   >
-                    {reason}
-                  </button>
-                ))}
+                    {SUBSTITUTE_REASONS.map(reason => (
+                      <option key={reason} value={reason}>{reason}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1">요리 종류</label>
+                  <select
+                    value={substituteCuisine}
+                    onChange={(e) => setSubstituteCuisine(e.target.value)}
+                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 outline-none focus:ring-2 focus:ring-orange-500"
+                  >
+                    {CUISINE_STYLES.map(style => (
+                      <option key={style} value={style}>{style}</option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  onClick={handleSubstitute}
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold py-2 rounded-lg transition-colors"
+                >
+                  교체하기
+                </button>
               </div>
             )}
           </div>

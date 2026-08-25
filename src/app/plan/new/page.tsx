@@ -26,6 +26,7 @@ export default function NewPlanPage() {
     cookingTools: [] as string[],
     basicSeasonings: [] as string[],
     goal: "절약",
+    cuisineStyle: "다양하게 섞어서",
     preferences: "",
     dislikedFoods: "",
     allergies: "",
@@ -327,7 +328,7 @@ export default function NewPlanPage() {
             
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">목표</label>
-              <select 
+              <select
                 name="goal" value={formData.goal} onChange={handleInputChange}
                 className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all"
               >
@@ -335,6 +336,21 @@ export default function NewPlanPage() {
                 <option value="다이어트">다이어트</option>
                 <option value="건강식">건강식</option>
                 <option value="빠른조리">최대한 빠른 조리</option>
+                <option value="일반식">맛있게 먹기 (일반식)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">선호 요리 종류</label>
+              <select
+                name="cuisineStyle" value={formData.cuisineStyle} onChange={handleInputChange}
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+              >
+                <option value="다양하게 섞어서">다양하게 섞어서</option>
+                <option value="한식 위주">한식 위주</option>
+                <option value="양식 위주">양식 위주</option>
+                <option value="중식 위주">중식 위주</option>
+                <option value="일식 위주">일식 위주</option>
               </select>
             </div>
 
