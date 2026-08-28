@@ -7,6 +7,7 @@ import {
   generateWithValidation,
   validateMealItems,
   redactBlockingItems,
+  getRecentDislikedMenus,
 } from '@/lib/mealPlanAI';
 
 export const maxDuration = 30;
@@ -37,6 +38,7 @@ export async function POST(req: Request) {
 
     const profile = await prisma.userProfile.findUnique({ where: { userId: session.userId } });
     const apiKey = process.env.GEMINI_API_KEY;
+    const dislikedMenus = await getRecentDislikedMenus(session.userId);
 
     let newItemData: MealPlanItemT;
     let isMock = false;
@@ -50,7 +52,7 @@ export async function POST(req: Request) {
       try {
         const result = await generateWithValidation({
           apiKey,
-          buildPrompt: (correction) => buildSubstitutePrompt(oldItem, reason, cuisineStyle, profile, correction),
+          buildPrompt: (correction) => buildSubstitutePrompt(oldItem, reason, cuisineStyle, profile, dislikedMenus, correction),
           schema: MealPlanItemSchema,
           validate: (data) =>
             validateMealItems([data], {
@@ -109,6 +111,7 @@ function buildSubstitutePrompt(
   reason: string,
   cuisineStyle: string | undefined,
   profile: { maxCookingTime: number; allergies: string | null } | null,
+  dislikedMenus: string[],
   correction?: string
 ): string {
   return `
@@ -129,6 +132,7 @@ function buildSubstitutePrompt(
 사용자 제약조건:
 - 최대 조리시간: ${profile?.maxCookingTime ?? 30}분 이하
 - 알레르기: ${profile?.allergies || '정보 없음(추정하지 말고 일반적으로 무난한 재료로 구성)'}
+- 최근 낮은 평가를 받았거나 "다시 안 먹고 싶다"고 한 메뉴 (비슷한 스타일은 피할 것): ${dislikedMenus.length > 0 ? dislikedMenus.join(', ') : '없음'}
 
 교체 사유와 희망 요리 종류에 맞게, 원래 메뉴와 실제로 다른 새로운 메뉴 1개를 아래 JSON 구조로 제안하라.
 비빔밥/덮밥류처럼 지나치게 흔한 형태에 치우치지 말고, 국/찌개, 면 요리, 구이, 원팬 요리 등 다양한 조리 형태를 고려하라.

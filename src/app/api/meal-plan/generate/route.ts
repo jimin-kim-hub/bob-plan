@@ -9,6 +9,7 @@ import {
   validateMealItems,
   redactBlockingItems,
   noteForItem,
+  getRecentDislikedMenus,
   ValidationIssue,
 } from '@/lib/mealPlanAI';
 
@@ -28,6 +29,7 @@ export async function POST(req: Request) {
 
     const weeklyBudget = Number(body.weeklyBudget) || 0;
     const maxCookingTime = Number(body.maxCookingTime) || 0;
+    const dislikedMenus = await getRecentDislikedMenus(session.userId);
 
     let responseJson: MealPlanResponseT;
     let issues: ValidationIssue[] = [];
@@ -42,7 +44,7 @@ export async function POST(req: Request) {
       try {
         const result = await generateWithValidation({
           apiKey,
-          buildPrompt: (correction) => buildGeneratePrompt(body, correction),
+          buildPrompt: (correction) => buildGeneratePrompt(body, dislikedMenus, correction),
           schema: MealPlanResponseSchema,
           validate: (data) => [
             ...validateBudget(data.summary.estimatedTotalCost, weeklyBudget),
@@ -118,7 +120,7 @@ export async function POST(req: Request) {
   }
 }
 
-function buildGeneratePrompt(body: any, correction?: string): string {
+function buildGeneratePrompt(body: any, dislikedMenus: string[], correction?: string): string {
   return `
 너는 자취생의 식비를 줄이고 맛있는 식단을 설계하는 AI 식생활 매니저다.
 
@@ -146,6 +148,7 @@ function buildGeneratePrompt(body: any, correction?: string): string {
 - 먹고 싶은/새로 사고 싶은 재료: ${body.wantedIngredients || '없음'}
 - 비선호 음식: ${body.dislikedFoods || '없음'}
 - 알레르기: ${body.allergies || '없음'}
+- 최근 낮은 평가를 받았거나 "다시 안 먹고 싶다"고 한 메뉴 (비슷한 스타일은 피할 것): ${dislikedMenus.length > 0 ? dislikedMenus.join(', ') : '없음'}
 
 반드시 지켜야 할 조건:
 1. 총 예상 비용은 예산을 넘기지 않는다.
@@ -162,6 +165,7 @@ function buildGeneratePrompt(body: any, correction?: string): string {
 11. 선호 요리 종류가 "다양하게 섞어서"이면 한식에만 치우치지 말고 양식/중식/일식 스타일도 적절히 섞어서 구성한다. 특정 요리 종류가 지정되면 그 스타일 위주로 구성하되, 그 안에서도 조리법을 다양화한다.
 12. 같은 형태의 메뉴(비빔밥, 덮밥, 볶음밥 등)를 여러 끼니에 걸쳐 반복하지 않는다. 국/찌개, 면 요리, 구이, 샐러드, 원팬 요리 등 조리 형태 자체를 다양하게 구성한다.
 13. 목표가 "일반식"이면 예산을 최소화하는 것보다 맛과 메뉴 다양성을 우선한다. 단, 총 비용은 여전히 예산을 넘기지 않아야 한다.
+14. "최근 낮은 평가를 받았거나 다시 안 먹고 싶다고 한 메뉴"와 이름이 같거나 조리법이 비슷한 메뉴는 이번 식단에서 제외한다.
 
 출력 JSON 구조:
 {

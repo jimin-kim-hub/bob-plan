@@ -1,5 +1,29 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { z } from 'zod';
+import prisma from './prisma';
+
+/**
+ * 최근 낮은 평점(2점 이하)이나 "다시 안 먹고 싶어요"를 받은 메뉴 이름을 모아
+ * 다음 생성 프롬프트에서 피하도록 한다. 피드백 화면의 "AI 학습 데이터"라는
+ * 문구가 실제로 다음 추천에 반영되게 만드는 최소한의 개인화 루프.
+ */
+export async function getRecentDislikedMenus(userId: string, limit = 8): Promise<string[]> {
+  const feedbacks = await prisma.feedback.findMany({
+    where: {
+      userId,
+      OR: [{ tasteRating: { lte: 2 } }, { wantAgain: false }],
+    },
+    include: { mealPlanItem: { select: { menuName: true } } },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+  });
+
+  const names = feedbacks
+    .map((f) => f.mealPlanItem?.menuName)
+    .filter((name): name is string => Boolean(name));
+
+  return Array.from(new Set(names));
+}
 
 const RecipeSchema = z.object({
   ingredients: z.array(z.string()).default([]),

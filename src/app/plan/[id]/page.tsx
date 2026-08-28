@@ -142,8 +142,11 @@ export default async function PlanResultPage({ params }: { params: Promise<{ id:
                       <p className="text-sm text-slate-500">용도: {item.usedForMenu}</p>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="font-bold text-slate-700">{item.estimatedPrice.toLocaleString()}원</span>
-                      <a 
+                      <div className="text-right">
+                        <span className="font-bold text-slate-700">{item.estimatedPrice.toLocaleString()}원</span>
+                        <p className="text-xs text-slate-400">AI 추정가</p>
+                      </div>
+                      <a
                         href={`https://www.coupang.com/np/search?q=${encodeURIComponent(item.ingredientName)}`}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -156,6 +159,11 @@ export default async function PlanResultPage({ params }: { params: Promise<{ id:
                 ))
               )}
             </ul>
+            {shoppingList.length > 0 && (
+              <p className="text-xs text-slate-400 px-6 py-4 bg-slate-50 border-t border-slate-100">
+                가격은 AI가 추정한 예상 금액이며, 실제 쿠팡 판매가와 다를 수 있습니다. 최종 가격은 구매 페이지에서 확인해주세요.
+              </p>
+            )}
           </div>
         </section>
 
